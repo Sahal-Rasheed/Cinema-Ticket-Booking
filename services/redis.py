@@ -39,3 +39,5 @@ async def hold_seat(booking: Booking) -> tuple[bool, Booking | None]:
     booking.expires_at = now + HOLD_TLL
 
     return True, booking
+
+# TODO: confirm booking, cancel booking, release seat, get booking details
