@@ -1,0 +1,22 @@
+services:
+  redis:
+    container_name: cinema-ticket-booking-redis
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - cinema-ticket-booking-redis-data:/data
+
+  redis-commander:
+    container_name: cinema-ticket-booking-redis-commander
+    image: ghcr.io/joeferner/redis-commander:latest
+    restart: always
+    environment:
+      - REDIS_HOSTS=local:cinema-ticket-booking-redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+
+volumes:
+  cinema-ticket-booking-redis-data:
