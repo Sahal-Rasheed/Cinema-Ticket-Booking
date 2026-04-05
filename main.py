@@ -1,7 +1,7 @@
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
-from fastapi.responses import Response, FileResponse
+from fastapi.responses import JSONResponse, FileResponse
 
 from handlers import booking_router
 from adapters.redis import redis_client
@@ -21,7 +21,7 @@ app = FastAPI(lifespan=lifespan)
 
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception):
-    return Response(
+    return JSONResponse(
         content={
             "detail": "Internal server error",
             "error": exc.__class__.__name__,
