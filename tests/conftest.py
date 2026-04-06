@@ -1,6 +1,5 @@
 import pytest
 import asyncio
-import pytest_asyncio
 import redis.asyncio as aioredis
 from httpx import AsyncClient, ASGITransport
 
@@ -34,7 +33,7 @@ async def redis_client():
     await client.aclose()
 
 
-@pytest_asyncio.fixture()
+@pytest.fixture
 async def client(redis_client):
     """
     A test client for the FastAPI app. This fixture also overrides,

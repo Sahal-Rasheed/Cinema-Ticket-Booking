@@ -24,6 +24,7 @@ testpaths = [
     "tests/test_hold_seat.py",
     "tests/test_confirm_seat.py",
     "tests/test_release_seat.py",
+    "tests/test_concurrency.py",
 ]
 markers = [
     "integration: marks tests that require external services",
