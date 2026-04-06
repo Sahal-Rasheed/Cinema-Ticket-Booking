@@ -17,7 +17,7 @@ async def book_seat(booking: Booking) -> tuple[bool, Booking | None]:
     if not success:
         return False, None
 
-    print(f"Seat held successfully: {held_booking}")
+    # print(f"Seat held successfully: {held_booking}")
     return True, held_booking
 
 

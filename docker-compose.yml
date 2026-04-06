@@ -7,6 +7,12 @@ services:
     volumes:
       - cinema-ticket-booking-redis-data:/data
 
+  test-redis:
+    container_name: cinema-ticket-booking-redis-test
+    image: redis:7-alpine
+    ports:
+      - "6380:6379"
+
   redis-commander:
     container_name: cinema-ticket-booking-redis-commander
     image: ghcr.io/joeferner/redis-commander:latest
