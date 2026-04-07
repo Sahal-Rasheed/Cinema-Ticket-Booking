@@ -4,7 +4,7 @@ A simple cinema seat booking system demonstrating **concurrency-safe seat reserv
 
 ## ▶️ Demo
 
-https://github.com/user-attachments/assets/063c832b-4325-4bce-afc5-26bff664a6c3
+https://github.com/user-attachments/assets/b106c148-4634-4def-8c15-9ec6203c6189
 
 ## ✨ Features
 
