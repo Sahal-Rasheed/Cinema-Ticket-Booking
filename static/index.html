@@ -1,658 +1,1046 @@
 <!doctype html>
 <html lang="en">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Cinema Booking</title>
+    <title>Cinema Ticket Booking</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Manrope:wght@400;600;700;800&display=swap"
+      rel="stylesheet"
+    />
     <style>
-        :root {
-            --bg: #0f0f0f;
-            --surface: #1a1a1a;
-            --surface-hover: #252525;
-            --border: #333;
-            --text: #e0e0e0;
-            --text-muted: #888;
-            --available: #2a2a2a;
-            --available-hover: #3a3a3a;
-            --held-mine: #d4a017;
-            --held-other: #e06c00;
-            --confirmed: #c0392b;
-            --accent: #4fc3f7;
-            --danger: #e74c3c;
-            --font: "SF Mono", "Fira Code", "Cascadia Code", monospace;
+      :root {
+        --bg-a: #081522;
+        --bg-b: #0f2a3d;
+        --surface: rgba(248, 251, 255, 0.9);
+        --surface-hover: rgba(255, 255, 255, 1);
+        --border: #d4e0ea;
+        --text: #17202a;
+        --text-muted: #5f6f80;
+        --available: linear-gradient(175deg, #f8fbff, #e4edf6);
+        --available-hover: linear-gradient(175deg, #ffffff, #ebf3fb);
+        --held-mine: #ff8a00;
+        --held-other: #f08a5d;
+        --confirmed: #8f1d2c;
+        --accent: #ff8a00;
+        --danger: #d73f4a;
+        --ok: #1f9254;
+        --font-display: "Bebas Neue", sans-serif;
+        --font-ui: "Manrope", sans-serif;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: var(--font-ui);
+        background:
+          radial-gradient(
+            circle at 12% 8%,
+            rgba(255, 191, 105, 0.22),
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 82% 18%,
+            rgba(70, 130, 180, 0.32),
+            transparent 45%
+          ),
+          linear-gradient(135deg, var(--bg-a), var(--bg-b));
+        color: var(--text);
+        min-height: 100vh;
+        padding: 1.4rem;
+      }
+
+      .layout {
+        max-width: 1200px;
+        margin: 0 auto;
+        display: grid;
+        gap: 1rem;
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.84);
+        backdrop-filter: blur(8px);
+        border: 1px solid rgba(255, 255, 255, 0.45);
+        border-radius: 18px;
+        box-shadow: 0 18px 45px rgba(8, 21, 34, 0.26);
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.4rem;
+        padding: 1rem 1.2rem;
+        animation: rise 0.45s ease-out;
+      }
+
+      header h1 {
+        font-family: var(--font-display);
+        letter-spacing: 0.07em;
+        font-size: clamp(2rem, 3.4vw, 2.6rem);
+        color: #0f2a3d;
+        line-height: 1;
+      }
+
+      .user-id {
+        font-weight: 700;
+        font-size: 0.78rem;
+        letter-spacing: 0.03em;
+        color: #26445f;
+        padding: 0.48rem 0.68rem;
+        border-radius: 999px;
+        border: 1px dashed #8aa4bc;
+        background: rgba(255, 255, 255, 0.75);
+        max-width: 210px;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .movies {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 0.65rem;
+        margin-bottom: 0.5rem;
+      }
+
+      .movie-card {
+        background: linear-gradient(175deg, #ffffff, #f1f7fc);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1rem;
+        cursor: pointer;
+        transition:
+          transform 0.22s ease,
+          box-shadow 0.22s ease,
+          border-color 0.22s ease;
+        min-width: 180px;
+      }
+
+      .movie-card:hover {
+        transform: translateY(-2px);
+        border-color: #9eb6cc;
+        box-shadow: 0 10px 24px rgba(8, 21, 34, 0.18);
+      }
+
+      .movie-card.selected {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 2px rgba(255, 138, 0, 0.2);
+        background: linear-gradient(170deg, #fff9f1, #fff2de);
+      }
+
+      .movie-card h3 {
+        font-size: 1rem;
+        margin-bottom: 0.4rem;
+        color: #20384d;
+      }
+
+      .movie-card p {
+        font-size: 0.75rem;
+        color: var(--text-muted);
+        font-weight: 700;
+      }
+
+      .content {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 1rem;
+        align-items: start;
+        animation: rise 0.7s ease-out;
+      }
+
+      .screen-area {
+        min-width: 0;
+        padding: 1.3rem;
+      }
+
+      .screen-meta {
+        display: flex;
+        justify-content: space-between;
+        align-items: baseline;
+        gap: 0.8rem;
+        margin-bottom: 0.45rem;
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+      }
+
+      .screen-meta strong {
+        color: #234661;
+        font-size: 0.95rem;
+      }
+
+      .screen-label {
+        text-align: center;
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.25em;
+        color: var(--text-muted);
+        margin-bottom: 0.5rem;
+        font-weight: 700;
+      }
+
+      .screen-bar {
+        height: 10px;
+        width: min(560px, 100%);
+        margin: 0 auto 1rem;
+        border-radius: 999px;
+        background: linear-gradient(
+          90deg,
+          rgba(255, 179, 71, 0.15),
+          rgba(255, 138, 0, 0.95),
+          rgba(255, 179, 71, 0.15)
+        );
+        box-shadow: 0 0 24px rgba(255, 138, 0, 0.45);
+      }
+
+      .seat-grid {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.66rem;
+        padding: 0.35rem 0.4rem;
+      }
+
+      .seat-row {
+        display: flex;
+        gap: 0.62rem;
+        align-items: center;
+      }
+
+      .row-label {
+        width: 1.5rem;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        text-align: center;
+      }
+
+      .seat {
+        width: 46px;
+        height: 40px;
+        border-radius: 12px 12px 5px 5px;
+        border: 1px solid #c7d6e4;
+        cursor: pointer;
+        font-size: 0.76rem;
+        font-family: var(--font-ui);
+        font-weight: 800;
+        color: #4f657a;
+        background: var(--available);
+        transition:
+          transform 0.16s ease,
+          filter 0.2s ease,
+          box-shadow 0.2s ease;
+      }
+
+      .seat:hover:not(.seat--held-mine):not(.seat--held-other):not(
+          .seat--confirmed
+        ) {
+        background: var(--available-hover);
+        transform: translateY(-2px) scale(1.06);
+        box-shadow: 0 8px 16px rgba(32, 56, 77, 0.2);
+        filter: saturate(1.2);
+      }
+
+      .seat--held-mine {
+        background: linear-gradient(170deg, #ffb347, var(--held-mine));
+        border-color: #c46700;
+        color: #2f1d0c;
+        cursor: default;
+      }
+
+      .seat--held-other {
+        background: linear-gradient(175deg, #f4ae84, var(--held-other));
+        border-color: #c26942;
+        color: #fff;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      .seat--confirmed {
+        background: linear-gradient(175deg, #b03445, var(--confirmed));
+        border-color: #6f1120;
+        color: #fff;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      .legend {
+        display: flex;
+        gap: 1.2rem;
+        justify-content: center;
+        margin-top: 1.5rem;
+        flex-wrap: wrap;
+      }
+
+      .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 0.4rem;
+        font-size: 0.7rem;
+        color: var(--text-muted);
+        font-weight: 700;
+      }
+
+      .legend-swatch {
+        width: 14px;
+        height: 12px;
+        border-radius: 3px 3px 2px 2px;
+      }
+
+      .hold-banner {
+        margin: 0.8rem auto 0;
+        display: none;
+        width: fit-content;
+        border: 1px dashed #cb9d68;
+        background: #fff8ef;
+        color: #7b4b0e;
+        border-radius: 999px;
+        padding: 0.42rem 0.74rem;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .checkout {
+        width: 280px;
+        background: linear-gradient(180deg, #ffffff, #edf4fb);
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 1.4rem;
+        box-shadow: 0 10px 24px rgba(8, 21, 34, 0.18);
+      }
+
+      .checkout h3 {
+        font-family: var(--font-display);
+        font-size: 1.55rem;
+        letter-spacing: 0.04em;
+        margin-bottom: 1rem;
+        color: #214667;
+        font-weight: 400;
+      }
+
+      .checkout-info {
+        font-size: 0.8rem;
+        margin-bottom: 0.6rem;
+        font-weight: 700;
+      }
+
+      .modal {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(5, 14, 23, 0.5);
+        backdrop-filter: blur(4px);
+        z-index: 1000;
+        padding: 1rem;
+      }
+
+      .modal.is-open {
+        display: flex;
+        animation: rise 0.2s ease-out;
+      }
+
+      .modal-card {
+        width: min(420px, 100%);
+        border-radius: 16px;
+        background: linear-gradient(180deg, #ffffff, #edf4fb);
+        border: 1px solid var(--border);
+        box-shadow: 0 20px 40px rgba(6, 17, 28, 0.35);
+        padding: 1.2rem;
+      }
+
+      .modal-title {
+        font-family: var(--font-display);
+        font-size: 1.65rem;
+        letter-spacing: 0.04em;
+        color: #214667;
+        margin-bottom: 0.4rem;
+        line-height: 1;
+      }
+
+      .modal-subtitle {
+        color: var(--text-muted);
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-bottom: 0.7rem;
+      }
+
+      .modal-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 0.45rem;
+        margin-bottom: 0.65rem;
+      }
+
+      .modal-meta {
+        border: 1px solid var(--border);
+        background: #f8fbff;
+        border-radius: 10px;
+        padding: 0.48rem 0.56rem;
+        font-size: 0.77rem;
+        color: #2a4661;
+        font-weight: 700;
+      }
+
+      .modal-meta span {
+        display: block;
+        color: var(--text-muted);
+        font-weight: 600;
+        margin-bottom: 0.1rem;
+      }
+
+      .modal .timer {
+        margin: 0.5rem 0 0.75rem;
+      }
+
+      .modal .checkout-buttons {
+        margin-top: 0.2rem;
+      }
+
+      .reopen-hold {
+        position: fixed;
+        right: 1rem;
+        bottom: 1rem;
+        z-index: 1050;
+        border: 1px solid #cb9d68;
+        background: linear-gradient(180deg, #fff8ef, #ffe9cc);
+        color: #7b4b0e;
+        border-radius: 999px;
+        padding: 0.58rem 0.86rem;
+        font-size: 0.78rem;
+        font-family: var(--font-ui);
+        font-weight: 800;
+        letter-spacing: 0.01em;
+        box-shadow: 0 8px 20px rgba(8, 21, 34, 0.25);
+        cursor: pointer;
+        display: none;
+        transition:
+          transform 0.14s ease,
+          filter 0.2s ease;
+      }
+
+      .reopen-hold:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+      }
+
+      .reopen-hold.is-visible {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+      }
+
+      .checkout-info span {
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+
+      .timer {
+        font-size: 1.8rem;
+        font-weight: 800;
+        text-align: center;
+        margin: 1rem 0;
+        color: #bf6500;
+        transition: color 0.3s;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .timer.urgent {
+        color: var(--danger);
+      }
+
+      .checkout-buttons {
+        display: flex;
+        gap: 0.6rem;
+      }
+
+      .btn {
+        flex: 1;
+        padding: 0.6rem;
+        border: none;
+        border-radius: 10px;
+        font-family: var(--font-ui);
+        font-size: 0.8rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition:
+          transform 0.14s ease,
+          filter 0.2s ease;
+      }
+
+      .btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.05);
+      }
+
+      .btn--confirm {
+        background: linear-gradient(180deg, #2dae6a, var(--ok));
+        color: #fff;
+      }
+
+      .btn--release {
+        background: linear-gradient(180deg, #e75862, var(--danger));
+        color: #fff;
+      }
+
+      .status-msg {
+        text-align: center;
+        margin-top: 1rem;
+        font-size: 0.8rem;
+        font-weight: 800;
+        padding: 0.75rem;
+        border-radius: 10px;
+        border: 1px solid var(--border);
+      }
+
+      .status-msg.success {
+        color: #0f6c3a;
+        background: #e9f8ef;
+      }
+
+      .status-msg.error {
+        color: #9f1f2c;
+        background: #fdecef;
+      }
+
+      .empty-state {
+        text-align: center;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        padding: 3rem 1rem;
+        font-weight: 700;
+      }
+
+      @keyframes rise {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
 
-        body {
-            font-family: var(--font);
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 2rem;
-        }
-
-        header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--border);
-        }
-
-        header h1 {
-            font-size: 1.4rem;
-            font-weight: 600;
-            letter-spacing: -0.02em;
-        }
-
-        .user-id {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-            background: var(--surface);
-            padding: 0.3rem 0.6rem;
-            border-radius: 4px;
-        }
-
-        .movies {
-            display: flex;
-            gap: 1rem;
-            margin-bottom: 2rem;
-            flex-wrap: wrap;
-        }
-
-        .movie-card {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.2rem 1.6rem;
-            cursor: pointer;
-            transition:
-                border-color 0.2s,
-                background 0.2s;
-            min-width: 180px;
-        }
-
-        .movie-card:hover {
-            background: var(--surface-hover);
-            border-color: var(--accent);
-        }
-
-        .movie-card.selected {
-            border-color: var(--accent);
-            background: var(--surface-hover);
-        }
-
-        .movie-card h3 {
-            font-size: 1rem;
-            margin-bottom: 0.4rem;
-        }
-
-        .movie-card p {
-            font-size: 0.75rem;
-            color: var(--text-muted);
-        }
-
+      @media (max-width: 980px) {
         .content {
-            display: flex;
-            gap: 2rem;
-            align-items: flex-start;
-            flex-wrap: wrap;
-        }
-
-        .screen-area {
-            flex: 1;
-            min-width: 300px;
-        }
-
-        .screen-label {
-            text-align: center;
-            font-size: 0.7rem;
-            text-transform: uppercase;
-            letter-spacing: 0.15em;
-            color: var(--text-muted);
-            margin-bottom: 0.6rem;
-        }
-
-        .screen-bar {
-            height: 3px;
-            background: linear-gradient(90deg,
-                    transparent,
-                    var(--accent),
-                    transparent);
-            border-radius: 2px;
-            margin: 0 2rem 1.5rem;
-        }
-
-        .seat-grid {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .seat-row {
-            display: flex;
-            gap: 0.5rem;
-            align-items: center;
-        }
-
-        .row-label {
-            width: 1.5rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            text-align: center;
-        }
-
-        .seat {
-            width: 36px;
-            height: 32px;
-            border-radius: 6px 6px 3px 3px;
-            border: none;
-            cursor: pointer;
-            font-size: 0.65rem;
-            font-family: var(--font);
-            color: var(--text-muted);
-            background: var(--available);
-            transition:
-                background 0.2s,
-                transform 0.15s;
-        }
-
-        .seat:hover:not(.seat--held-mine):not(.seat--held-other):not(.seat--confirmed) {
-            background: var(--available-hover);
-            transform: scale(1.08);
-        }
-
-        .seat--held-mine {
-            background: var(--held-mine);
-            color: #000;
-            cursor: default;
-        }
-
-        .seat--held-other {
-            background: var(--held-other);
-            color: #fff;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .seat--confirmed {
-            background: var(--confirmed);
-            color: #fff;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
-
-        .legend {
-            display: flex;
-            gap: 1.2rem;
-            justify-content: center;
-            margin-top: 1.5rem;
-            flex-wrap: wrap;
-        }
-
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 0.4rem;
-            font-size: 0.7rem;
-            color: var(--text-muted);
-        }
-
-        .legend-swatch {
-            width: 14px;
-            height: 12px;
-            border-radius: 3px 3px 2px 2px;
+          grid-template-columns: 1fr;
         }
 
         .checkout {
-            width: 280px;
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 1.4rem;
+          width: 100%;
         }
 
-        .checkout h3 {
-            font-size: 0.85rem;
-            margin-bottom: 1rem;
-            color: var(--accent);
+        .seat {
+          width: 42px;
+          height: 37px;
+        }
+      }
+
+      @media (max-width: 640px) {
+        header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 0.8rem;
         }
 
-        .checkout-info {
-            font-size: 0.8rem;
-            margin-bottom: 0.6rem;
+        .seat {
+          width: 33px;
+          height: 30px;
+          font-size: 0.64rem;
         }
 
-        .checkout-info span {
-            color: var(--text-muted);
+        .seat-row {
+          gap: 0.3rem;
         }
 
-        .timer {
-            font-size: 1.8rem;
-            font-weight: 700;
-            text-align: center;
-            margin: 1rem 0;
-            color: var(--held-mine);
-            transition: color 0.3s;
+        .legend {
+          justify-content: flex-start;
         }
 
-        .timer.urgent {
-            color: var(--danger);
+        .modal-grid {
+          grid-template-columns: 1fr;
         }
-
-        .checkout-buttons {
-            display: flex;
-            gap: 0.6rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.6rem;
-            border: none;
-            border-radius: 6px;
-            font-family: var(--font);
-            font-size: 0.8rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: opacity 0.2s;
-        }
-
-        .btn:hover {
-            opacity: 0.85;
-        }
-
-        .btn--confirm {
-            background: #27ae60;
-            color: #fff;
-        }
-
-        .btn--release {
-            background: var(--danger);
-            color: #fff;
-        }
-
-        .status-msg {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.8rem;
-            font-weight: 600;
-        }
-
-        .status-msg.success {
-            color: #27ae60;
-        }
-
-        .status-msg.error {
-            color: var(--danger);
-        }
-
-        .empty-state {
-            text-align: center;
-            color: var(--text-muted);
-            font-size: 0.85rem;
-            padding: 3rem 1rem;
-        }
+      }
     </style>
-</head>
+  </head>
 
-<body>
-    <header>
+  <body>
+    <div class="layout">
+      <header class="glass">
         <h1>Cinema Booking</h1>
         <div class="user-id" id="userBadge"></div>
-    </header>
+      </header>
 
-    <div class="movies" id="movieList"></div>
+      <div class="movies glass" id="movieList" style="padding: 1rem"></div>
 
-    <div class="content" id="mainContent" style="display: none">
-        <div class="screen-area">
-            <div class="screen-label">Screen</div>
-            <div class="screen-bar"></div>
-            <div class="seat-grid" id="seatGrid"></div>
-            <div class="legend">
-                <div class="legend-item">
-                    <div class="legend-swatch" style="background: var(--available)"></div>
-                    Available
-                </div>
-                <div class="legend-item">
-                    <div class="legend-swatch" style="background: var(--held-mine)"></div>
-                    Your hold
-                </div>
-                <div class="legend-item">
-                    <div class="legend-swatch" style="background: var(--held-other)"></div>
-                    Other hold
-                </div>
-                <div class="legend-item">
-                    <div class="legend-swatch" style="background: var(--confirmed)"></div>
-                    Confirmed
-                </div>
+      <div class="content" id="mainContent" style="display: none">
+        <div class="screen-area glass">
+          <div class="screen-meta">
+            <strong id="screenMovieTitle">Select a movie</strong>
+            <span id="screenSeatCount">0 seats</span>
+          </div>
+          <div class="screen-label">Screen</div>
+          <div class="screen-bar"></div>
+          <div class="seat-grid" id="seatGrid"></div>
+          <div class="legend">
+            <div class="legend-item">
+              <div
+                class="legend-swatch"
+                style="background: var(--available)"
+              ></div>
+              Available
             </div>
+            <div class="legend-item">
+              <div
+                class="legend-swatch"
+                style="background: var(--held-mine)"
+              ></div>
+              Your hold
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-swatch"
+                style="background: var(--held-other)"
+              ></div>
+              Other hold
+            </div>
+            <div class="legend-item">
+              <div
+                class="legend-swatch"
+                style="background: var(--confirmed)"
+              ></div>
+              Confirmed
+            </div>
+          </div>
+          <div class="hold-banner" id="holdBanner"></div>
         </div>
-        <div id="checkoutArea"></div>
+      </div>
     </div>
 
+    <div
+      class="modal"
+      id="sessionModal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modalTitle"
+    >
+      <div class="modal-card">
+        <div class="modal-title" id="modalTitle">Complete Booking</div>
+        <div class="modal-subtitle">
+          Your seat is reserved for a limited time.
+        </div>
+        <div class="modal-grid">
+          <div class="modal-meta">
+            <span>Seat</span><strong id="modalSeat">-</strong>
+          </div>
+          <div class="modal-meta">
+            <span>Movie</span><strong id="modalMovie">-</strong>
+          </div>
+          <div class="modal-meta">
+            <span>Session</span><strong id="modalSession">-</strong>
+          </div>
+          <div class="modal-meta"><span>Status</span><strong>Held</strong></div>
+        </div>
+        <div class="timer" id="timer">--:--</div>
+        <div class="checkout-buttons">
+          <button class="btn btn--confirm" id="btnConfirm">Confirm</button>
+          <button class="btn btn--release" id="btnRelease">Release</button>
+        </div>
+      </div>
+    </div>
+
+    <button
+      class="reopen-hold"
+      id="reopenHoldBtn"
+      type="button"
+      aria-label="Reopen hold modal"
+    >
+      Reopen Hold
+    </button>
+
     <script>
-        (function () {
-            const userID = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
-            document.getElementById("userBadge").textContent = "user: " + userID;
+      (function () {
+        const userID = crypto.randomUUID().replace(/-/g, "").slice(0, 12);
+        document.getElementById("userBadge").textContent = "user: " + userID;
 
-            let movies = [];
-            let selectedMovie = null;
-            let activeSession = null; // { sessionID, movieID, seatID, expiresAt }
-            let pollInterval = null;
-            let timerInterval = null;
+        let movies = [];
+        let selectedMovie = null;
+        let activeSession = null; // { sessionID, movieID, seatID, expiresAt }
+        let pollInterval = null;
+        let timerInterval = null;
+        var sessionModal = document.getElementById("sessionModal");
+        var reopenHoldBtn = document.getElementById("reopenHoldBtn");
 
-            // --- API helpers ---
+        // --- API helpers ---
 
-            function api(method, path, body) {
-                const opts = {
-                    method,
-                    headers: { "Content-Type": "application/json" },
-                };
-                if (body) opts.body = JSON.stringify(body);
-                return fetch(`/api/v1${path}`, opts).then(function (r) {
-                    if (r.status === 204) return null;
-                    return r.json().then(function (data) {
-                        if (!r.ok) throw new Error(data.error || "request failed");
-                        return data;
-                    });
+        function api(method, path, body) {
+          const opts = {
+            method,
+            headers: { "Content-Type": "application/json" },
+          };
+          if (body) opts.body = JSON.stringify(body);
+          return fetch(`/api/v1${path}`, opts).then(function (r) {
+            if (r.status === 204) return null;
+            return r.json().then(function (data) {
+              if (!r.ok)
+                throw new Error(data.detail || data.error || "request failed");
+              return data;
+            });
+          });
+        }
+
+        // --- Movie list ---
+
+        function loadMovies() {
+          api("GET", "/movies")
+            .then(function (data) {
+              movies = data;
+              renderMovies();
+            })
+            .catch(function () {
+              document.getElementById("movieList").innerHTML =
+                '<div class="empty-state">Could not load movies. Check backend.</div>';
+            });
+        }
+
+        function renderMovies() {
+          var container = document.getElementById("movieList");
+          container.innerHTML = "";
+          movies.forEach(function (m) {
+            var card = document.createElement("div");
+            card.className =
+              "movie-card" +
+              (selectedMovie && selectedMovie.id === m.id ? " selected" : "");
+            card.innerHTML =
+              "<h3>" +
+              escapeHtml(m.title) +
+              "</h3><p>" +
+              m.rows +
+              " rows &times; " +
+              m.seats_per_row +
+              " seats</p>";
+            card.addEventListener("click", function () {
+              selectMovie(m);
+            });
+            container.appendChild(card);
+          });
+        }
+
+        function releaseActiveSession() {
+          if (!activeSession) return Promise.resolve();
+          var sid = activeSession.sessionID;
+          clearTimerInterval();
+          activeSession = null;
+          closeSessionModal();
+          renderHoldBanner();
+          return api("DELETE", "/sessions/" + sid, { user_id: userID }).catch(
+            function () {},
+          );
+        }
+
+        function selectMovie(movie) {
+          releaseActiveSession();
+          selectedMovie = movie;
+          renderMovies();
+          document.getElementById("mainContent").style.display = "grid";
+          document.getElementById("screenMovieTitle").textContent = movie.title;
+          document.getElementById("screenSeatCount").textContent =
+            movie.rows * movie.seats_per_row + " seats";
+          closeSessionModal();
+          renderHoldBanner();
+          fetchSeats();
+          startPolling();
+        }
+
+        // --- Seat grid ---
+
+        function fetchSeats() {
+          if (!selectedMovie) return;
+          api("GET", "/movies/" + selectedMovie.id + "/seats").then(
+            function (seats) {
+              renderGrid(seats);
+            },
+          );
+        }
+
+        function renderGrid(seatStatuses) {
+          var grid = document.getElementById("seatGrid");
+          grid.innerHTML = "";
+          var statusMap = {};
+          seatStatuses.forEach(function (s) {
+            statusMap[s.seat_id] = s;
+            // console.log(statusMap);
+          });
+
+          var rowLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+          for (var r = 0; r < selectedMovie.rows; r++) {
+            var rowDiv = document.createElement("div");
+            rowDiv.className = "seat-row";
+            var label = document.createElement("div");
+            label.className = "row-label";
+            label.textContent = rowLabels[r];
+            rowDiv.appendChild(label);
+
+            for (var s = 1; s <= selectedMovie.seats_per_row; s++) {
+              var seatID = rowLabels[r] + s;
+              var btn = document.createElement("button");
+              btn.className = "seat";
+              btn.textContent = s;
+              btn.dataset.seatId = seatID;
+              btn.setAttribute("aria-label", "Seat " + seatID);
+
+              var info = statusMap[seatID];
+              if (info) {
+                if (info.status === "confirmed") {
+                  btn.classList.add("seat--confirmed");
+                } else if (info.status === "held" && info.user_id === userID) {
+                  btn.classList.add("seat--held-mine");
+                } else if (info.status === "held") {
+                  btn.classList.add("seat--held-other");
+                }
+              }
+
+              (function (id) {
+                btn.addEventListener("click", function () {
+                  holdSeat(id);
                 });
+              })(seatID);
+
+              rowDiv.appendChild(btn);
             }
 
-            // --- Movie list ---
+            var labelRight = document.createElement("div");
+            labelRight.className = "row-label";
+            labelRight.textContent = rowLabels[r];
+            rowDiv.appendChild(labelRight);
+            grid.appendChild(rowDiv);
+          }
+        }
 
-            function loadMovies() {
-                api("GET", "/movies").then(function (data) {
-                    movies = data;
-                    renderMovies();
-                });
-            }
+        // --- Hold / Confirm / Release ---
 
-            function renderMovies() {
-                var container = document.getElementById("movieList");
-                container.innerHTML = "";
-                movies.forEach(function (m) {
-                    var card = document.createElement("div");
-                    card.className =
-                        "movie-card" +
-                        (selectedMovie && selectedMovie.id === m.id ? " selected" : "");
-                    card.innerHTML =
-                        "<h3>" +
-                        escapeHtml(m.title) +
-                        "</h3><p>" +
-                        m.rows +
-                        " rows &times; " +
-                        m.seats_per_row +
-                        " seats</p>";
-                    card.addEventListener("click", function () {
-                        selectMovie(m);
-                    });
-                    container.appendChild(card);
-                });
-            }
+        function holdSeat(seatID) {
+          if (activeSession) return; // already holding a seat
+          api(
+            "POST",
+            "/movies/" + selectedMovie.id + "/seats/" + seatID + "/hold",
+            { user_id: userID },
+          )
+            .then(function (data) {
+              activeSession = {
+                sessionID: data.session_id,
+                movieID: data.movie_id,
+                seatID: data.seat_id,
+                expiresAt: new Date(data.expires_at),
+              };
+              fetchSeats();
+              openSessionModal();
+              renderHoldBanner();
+              startTimer();
+            })
+            .catch(function (err) {
+              showStatus(err.message, "error");
+            });
+        }
 
-            function releaseActiveSession() {
-                if (!activeSession) return Promise.resolve();
-                var sid = activeSession.sessionID;
-                clearTimerInterval();
-                activeSession = null;
-                document.getElementById("checkoutArea").innerHTML = "";
-                return api("DELETE", "/sessions/" + sid, { user_id: userID }).catch(
-                    function () { },
-                );
-            }
+        function confirmSeat() {
+          if (!activeSession) return;
+          api("PUT", "/sessions/" + activeSession.sessionID + "/confirm", {
+            user_id: userID,
+          })
+            .then(function () {
+              clearTimerInterval();
+              activeSession = null;
+              fetchSeats();
+              closeSessionModal();
+              renderHoldBanner();
+              showStatus("Confirmed!", "success");
+            })
+            .catch(function (err) {
+              showStatus(err.message, "error");
+            });
+        }
 
-            function selectMovie(movie) {
-                releaseActiveSession();
-                selectedMovie = movie;
-                renderMovies();
-                document.getElementById("mainContent").style.display = "flex";
-                document.getElementById("checkoutArea").innerHTML = "";
-                fetchSeats();
-                startPolling();
-            }
+        function releaseSeat() {
+          if (!activeSession) return;
+          api("DELETE", "/sessions/" + activeSession.sessionID, {
+            user_id: userID,
+          })
+            .then(function () {
+              clearTimerInterval();
+              activeSession = null;
+              fetchSeats();
+              closeSessionModal();
+              renderHoldBanner();
+            })
+            .catch(function (err) {
+              showStatus(err.message, "error");
+            });
+        }
 
-            // --- Seat grid ---
+        // --- Checkout panel ---
 
-            function fetchSeats() {
-                if (!selectedMovie) return;
-                api("GET", "/movies/" + selectedMovie.id + "/seats").then(
-                    function (seats) {
-                        renderGrid(seats);
-                    },
-                );
-            }
+        function openSessionModal() {
+          if (!activeSession) return;
+          document.getElementById("modalSeat").textContent =
+            activeSession.seatID;
+          document.getElementById("modalMovie").textContent =
+            activeSession.movieID;
+          document.getElementById("modalSession").textContent =
+            activeSession.sessionID.slice(0, 8) + "...";
+          sessionModal.classList.add("is-open");
+          syncReopenHoldButton();
+        }
 
-            function renderGrid(seatStatuses) {
-                var grid = document.getElementById("seatGrid");
-                grid.innerHTML = "";
-                var statusMap = {};
-                seatStatuses.forEach(function (s) {
-                    statusMap[s.seat_id] = s;
-                    // console.log(statusMap);
-                });
+        function closeSessionModal() {
+          sessionModal.classList.remove("is-open");
+          syncReopenHoldButton();
+        }
 
-                var rowLabels = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-                for (var r = 0; r < selectedMovie.rows; r++) {
-                    var rowDiv = document.createElement("div");
-                    rowDiv.className = "seat-row";
-                    var label = document.createElement("div");
-                    label.className = "row-label";
-                    label.textContent = rowLabels[r];
-                    rowDiv.appendChild(label);
+        function syncReopenHoldButton() {
+          var shouldShow =
+            !!activeSession && !sessionModal.classList.contains("is-open");
+          reopenHoldBtn.classList.toggle("is-visible", shouldShow);
+        }
 
-                    for (var s = 1; s <= selectedMovie.seats_per_row; s++) {
-                        var seatID = rowLabels[r] + s;
-                        var btn = document.createElement("button");
-                        btn.className = "seat";
-                        btn.textContent = s;
-                        btn.dataset.seatId = seatID;
+        function showStatus(msg, type) {
+          var banner = document.getElementById("holdBanner");
+          banner.style.display = "inline-block";
+          banner.textContent = msg;
+          if (type === "error") {
+            banner.style.background = "#fdecef";
+            banner.style.borderColor = "#d89ca5";
+            banner.style.color = "#9f1f2c";
+          } else {
+            banner.style.background = "#e9f8ef";
+            banner.style.borderColor = "#99cfac";
+            banner.style.color = "#0f6c3a";
+          }
+          setTimeout(function () {
+            renderHoldBanner();
+          }, 3000);
+        }
 
-                        var info = statusMap[seatID];
-                        if (info) {
-                            if (info.status === "confirmed") {
-                                btn.classList.add("seat--confirmed");
-                            } else if (info.status === "held" && info.user_id === userID) {
-                                btn.classList.add("seat--held-mine");
-                            } else if (info.status === "held") {
-                                btn.classList.add("seat--held-other");
-                            }
-                        }
+        function renderHoldBanner() {
+          var banner = document.getElementById("holdBanner");
+          if (!activeSession) {
+            banner.style.display = "none";
+            banner.textContent = "";
+            syncReopenHoldButton();
+            return;
+          }
 
-                        (function (id) {
-                            btn.addEventListener("click", function () {
-                                holdSeat(id);
-                            });
-                        })(seatID);
+          var seconds = Math.max(
+            0,
+            Math.floor((activeSession.expiresAt - Date.now()) / 1000),
+          );
+          var mins = Math.floor(seconds / 60);
+          var secs = seconds % 60;
+          banner.textContent =
+            "Holding seat " +
+            activeSession.seatID +
+            " for " +
+            String(mins).padStart(2, "0") +
+            ":" +
+            String(secs).padStart(2, "0");
+          banner.style.display = "inline-block";
+          banner.style.background = "#fff8ef";
+          banner.style.borderColor = "#cb9d68";
+          banner.style.color = "#7b4b0e";
+          syncReopenHoldButton();
+        }
 
-                        rowDiv.appendChild(btn);
-                    }
+        // --- Timer ---
 
-                    var labelRight = document.createElement("div");
-                    labelRight.className = "row-label";
-                    labelRight.textContent = rowLabels[r];
-                    rowDiv.appendChild(labelRight);
-                    grid.appendChild(rowDiv);
-                }
-            }
+        function startTimer() {
+          clearTimerInterval();
+          updateTimer();
+          timerInterval = setInterval(updateTimer, 1000);
+        }
 
-            // --- Hold / Confirm / Release ---
+        function updateTimer() {
+          if (!activeSession) {
+            clearTimerInterval();
+            return;
+          }
+          var el = document.getElementById("timer");
+          if (!el) return;
+          var remaining = Math.max(
+            0,
+            Math.floor((activeSession.expiresAt - Date.now()) / 1000),
+          );
+          var mins = Math.floor(remaining / 60);
+          var secs = remaining % 60;
+          el.textContent =
+            String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+          renderHoldBanner();
 
-            function holdSeat(seatID) {
-                if (activeSession) return; // already holding a seat
-                api(
-                    "POST",
-                    "/movies/" + selectedMovie.id + "/seats/" + seatID + "/hold",
-                    { user_id: userID },
-                )
-                    .then(function (data) {
-                        activeSession = {
-                            sessionID: data.session_id,
-                            movieID: data.movie_id,
-                            seatID: data.seat_id,
-                            expiresAt: new Date(data.expires_at),
-                        };
-                        console.log("Held seat", activeSession);
-                        fetchSeats();
-                        renderCheckout();
-                        startTimer();
-                    })
-                    .catch(function (err) {
-                        showCheckoutStatus(err.message, "error");
-                    });
-            }
+          if (remaining < 60) {
+            el.classList.add("urgent");
+          } else {
+            el.classList.remove("urgent");
+          }
 
-            function confirmSeat() {
-                if (!activeSession) return;
-                api("PUT", "/sessions/" + activeSession.sessionID + "/confirm", {
-                    user_id: userID,
-                })
-                    .then(function () {
-                        clearTimerInterval();
-                        activeSession = null;
-                        fetchSeats();
-                        showCheckoutStatus("Confirmed!", "success");
-                    })
-                    .catch(function (err) {
-                        showCheckoutStatus(err.message, "error");
-                    });
-            }
+          if (remaining <= 0) {
+            clearTimerInterval();
+            activeSession = null;
+            fetchSeats();
+            closeSessionModal();
+            showStatus("Hold expired", "error");
+          }
+        }
 
-            function releaseSeat() {
-                if (!activeSession) return;
-                api("DELETE", "/sessions/" + activeSession.sessionID, {
-                    user_id: userID,
-                })
-                    .then(function () {
-                        clearTimerInterval();
-                        activeSession = null;
-                        fetchSeats();
-                        document.getElementById("checkoutArea").innerHTML = "";
-                    })
-                    .catch(function (err) {
-                        showCheckoutStatus(err.message, "error");
-                    });
-            }
+        function clearTimerInterval() {
+          if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+          }
+        }
 
-            // --- Checkout panel ---
+        // --- Polling ---
 
-            function renderCheckout() {
-                if (!activeSession) return;
-                var area = document.getElementById("checkoutArea");
-                area.innerHTML =
-                    '<div class="checkout">' +
-                    "<h3>Checkout</h3>" +
-                    '<div class="checkout-info"><span>Seat:</span> ' +
-                    escapeHtml(activeSession.seatID) +
-                    "</div>" +
-                    '<div class="checkout-info"><span>Movie:</span> ' +
-                    escapeHtml(activeSession.movieID) +
-                    "</div>" +
-                    '<div class="checkout-info"><span>Session:</span> ' +
-                    activeSession.sessionID.slice(0, 8) +
-                    "&hellip;</div>" +
-                    '<div class="timer" id="timer">--:--</div>' +
-                    '<div class="checkout-buttons">' +
-                    '<button class="btn btn--confirm" id="btnConfirm">Confirm</button>' +
-                    '<button class="btn btn--release" id="btnRelease">Release</button>' +
-                    "</div>" +
-                    '<div id="checkoutStatus"></div>' +
-                    "</div>";
-                document
-                    .getElementById("btnConfirm")
-                    .addEventListener("click", confirmSeat);
-                document
-                    .getElementById("btnRelease")
-                    .addEventListener("click", releaseSeat);
-            }
+        function startPolling() {
+          if (pollInterval) clearInterval(pollInterval);
+          pollInterval = setInterval(fetchSeats, 2000);
+        }
 
-            function showCheckoutStatus(msg, type) {
-                var area = document.getElementById("checkoutArea");
-                area.innerHTML =
-                    '<div class="checkout">' +
-                    '<div class="status-msg ' +
-                    type +
-                    '">' +
-                    escapeHtml(msg) +
-                    "</div>" +
-                    "</div>";
-                setTimeout(function () {
-                    if (!activeSession) area.innerHTML = "";
-                }, 3000);
-            }
+        // --- Util ---
 
-            // --- Timer ---
+        function escapeHtml(str) {
+          var div = document.createElement("div");
+          div.textContent = str;
+          return div.innerHTML;
+        }
 
-            function startTimer() {
-                clearTimerInterval();
-                updateTimer();
-                timerInterval = setInterval(updateTimer, 1000);
-            }
+        // --- Init ---
 
-            function updateTimer() {
-                if (!activeSession) {
-                    clearTimerInterval();
-                    return;
-                }
-                var el = document.getElementById("timer");
-                if (!el) return;
-                var remaining = Math.max(
-                    0,
-                    Math.floor((activeSession.expiresAt - Date.now()) / 1000),
-                );
-                var mins = Math.floor(remaining / 60);
-                var secs = remaining % 60;
-                el.textContent =
-                    String(mins).padStart(2, "0") + ":" + String(secs).padStart(2, "0");
+        document
+          .getElementById("btnConfirm")
+          .addEventListener("click", confirmSeat);
+        document
+          .getElementById("btnRelease")
+          .addEventListener("click", releaseSeat);
+        sessionModal.addEventListener("click", function (event) {
+          if (event.target === sessionModal) {
+            closeSessionModal();
+          }
+        });
+        reopenHoldBtn.addEventListener("click", function () {
+          openSessionModal();
+        });
 
-                if (remaining < 60) {
-                    el.classList.add("urgent");
-                } else {
-                    el.classList.remove("urgent");
-                }
-
-                if (remaining <= 0) {
-                    clearTimerInterval();
-                    activeSession = null;
-                    fetchSeats();
-                    showCheckoutStatus("Hold expired", "error");
-                }
-            }
-
-            function clearTimerInterval() {
-                if (timerInterval) {
-                    clearInterval(timerInterval);
-                    timerInterval = null;
-                }
-            }
-
-            // --- Polling ---
-
-            function startPolling() {
-                if (pollInterval) clearInterval(pollInterval);
-                pollInterval = setInterval(fetchSeats, 2000);
-            }
-
-            // --- Util ---
-
-            function escapeHtml(str) {
-                var div = document.createElement("div");
-                div.textContent = str;
-                return div.innerHTML;
-            }
-
-            // --- Init ---
-
-            loadMovies();
-        })();
+        loadMovies();
+      })();
     </script>
-</body>
-
+  </body>
 </html>
