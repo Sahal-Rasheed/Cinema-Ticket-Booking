@@ -2,6 +2,9 @@
 
 A simple cinema seat booking system demonstrating **concurrency-safe seat reservation** using **FastAPI** and **Redis**.
 
+## ▶️ Demo
+[demo.webm](https://github.com/user-attachments/assets/063c832b-4325-4bce-afc5-26bff664a6c3)
+
 ## ✨ Features
 
 - Hold a seat with expiry (TTL)
